@@ -24,12 +24,13 @@ Navigate to chrome://flags/#block-insecure-private-network-requests and change t
 
 
 ### Steps ###
-1) Clone the repo to your system with the command below:
+1) Clone the repo to your system with the command below.
+
 	git clone challenge https://github.com/RedWings-RedBull/devops-code-challenge.git
 
 2) Open your terminal and navigate so that the "deployment template" folder is your current working directory.
 
-3) Enter the command below, except replaced SUBNETIDGOESHERE with the subnet ID you want to deploy to:
+3) Enter the command below, except replaced SUBNETIDGOESHERE with the subnet ID you wish to deploy within.
 
 	aws cloudformation create-stack --stack-name interview-challenge-deployment --template-body file://./CloudFormationTemplate.yaml --capabilities CAPABILITY_NAMED_IAM --parameters 'ParameterKey=SubnetID,ParameterValue=SUBNETIDGOESHERE'
 
