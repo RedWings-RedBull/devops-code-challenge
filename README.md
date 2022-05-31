@@ -1,21 +1,21 @@
-###### Overview #####
+# Overview #
 
  This repository contains the source code for a React frontend, an Express backend, and an AWS CloudFormation template that deploys a containerized version of the 2 Apps on Amazon Elastic Container Service. 
 
 Further down in this document you will be provided steps to replicate this containerized deployment within your own AWS environment.
 
-### NOTE ###
+## NOTE ##
 The included AWS containerized deployment uses ECS Fargate, a serverless, container management option for AWS Elastic Container Service. One limitation of ECS Fargate is it only allows containers of the networking type "awsvpc". Due to this networking limitation, when the frontend container sends the GET request to the backend container, the backend container sees the request coming from the public IP address of the container's interface, instead of localhost. 
 
 The resulting problem is if you connect to the frontend with default settings in Google Chrome, you will see a failure to connect error. The GET request will fail with the following error: "cross-origin resource sharing Error: InsecurePrivateNetwork". Google Chrome is blocking the request. This can be unblocked using the following workaround.
 
-## Google Chrome Workaround ##
+### Google Chrome Workaround ###
 Navigate to chrome://flags/#block-insecure-private-network-requests and change the "Block insecure private network requests" setting to "Disabled". You will now see that the front end now has a successful response.
 
 
-### Replicating the containerized environment in AWS ###
+## Replicating the containerized environment in AWS ##
 
-## Requirements ##
+### Requirements ###
 1) Have an AWS account created and ready for resource provisioning. 
 
 2) Have AWS CLI installed and configured for use on your AWS account.
@@ -23,7 +23,7 @@ Navigate to chrome://flags/#block-insecure-private-network-requests and change t
 3) Have the AWS subnet ID of an AWS subnet with your account.
 
 
-## Steps ## 
+### Steps ###
 1) Clone the repo to your system with the command below:
 	git clone https://github.com/RedWings-RedBull/devops-code-challenge.git
 
