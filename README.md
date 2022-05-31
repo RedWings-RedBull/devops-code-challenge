@@ -1,59 +1,48 @@
-# Overview
-This repository contains a React frontend, and an Express backend that the frontend connects to.
+###### Overview #####
 
-# Objective
-Deploy the frontend and backend to somewhere publicly accessible over the internet. The AWS Free Tier should be more than sufficient to run this project, but you may use any platform and tooling you'd like for your solution.
+ This repository contains the source code for a React frontend, an Express backend, and an AWS CloudFormation template that deploys a containerized version of the 2 Apps on Amazon Elastic Container Service. 
 
-Fork this repo as a base. You may change any code in this repository to suit the infrastructure you build in this code challenge.
+Further down in this document you will be provided steps to replicate this containerized deployment within your own AWS environment.
 
-# Submission
-1. A github repo that has been forked from this repo with all your code.
-2. Modify this README file with instructions for:
-* Any tools needed to deploy your infrastructure
-* All the steps needed to repeat your deployment process
-* URLs to the your deployed frontend.
+### NOTE ###
+The included AWS containerized deployment uses ECS Fargate, a serverless, container management option for AWS Elastic Container Service. One limitation of ECS Fargate is it only allows containers of the networking type "awsvpc". Due to this networking limitation, when the frontend container sends the GET request to the backend container, the backend container sees the request coming from the public IP address of the container's interface, instead of localhost. 
 
-# Evaluation
-You will be evaluated on the ease to replicate your infrastructure. This is a combination of quality of the instructions, as well as any scripts to automate the overall setup process.
+The resulting problem is if you connect to the frontend with default settings in Google Chrome, you will see a failure to connect error. The GET request will fail with the following error: "cross-origin resource sharing Error: InsecurePrivateNetwork". Google Chrome is blocking the request. This can be unblocked using the following workaround.
 
-# Setup your environment
-Install nodejs. Binaries and installers can be found on nodejs.org.
-https://nodejs.org/en/download/
+## Google Chrome Workaround ##
+Navigate to chrome://flags/#block-insecure-private-network-requests and change the "Block insecure private network requests" setting to "Disabled". You will now see that the front end now has a successful response.
 
-For macOS or Linux, Nodejs can usually be found in your preferred package manager.
-https://nodejs.org/en/download/package-manager/
 
-Depending on the Linux distribution, the Node Package Manager `npm` may need to be installed separately.
+### Replicating the containerized environment in AWS ###
 
-# Running the project
-The backend and the frontend will need to run on separate processes. The backend should be started first.
-```
-cd backend
-npm ci
-npm start
-```
-The backend should response to a GET request on `localhost:8080`.
+## Requirements ##
+1) Have an AWS account created and ready for resource provisioning. 
 
-With the backend started, the frontend can be started.
-```
-cd frontend
-npm ci
-npm start
-```
-The frontend can be accessed at `localhost:3000`. If the frontend successfully connects to the backend, a message saying "SUCCESS" followed by a guid should be displayed on the screen.  If the connection failed, an error message will be displayed on the screen.
+2) Have AWS CLI installed and configured for use on your AWS account.
 
-# Configuration
-The frontend has a configuration file at `frontend/src/config.js` that defines the URL to call the backend. This URL is used on `frontend/src/App.js#12`, where the front end will make the GET call during the initial load of the page.
+3) Have the AWS subnet ID of an AWS subnet with your account.
 
-The backend has a configuration file at `backend/config.js` that defines the host that the frontend will be calling from. This URL is used in the `Access-Control-Allow-Origin` CORS header, read in `backend/index.js#14`
 
-# Optional Extras
-The core requirement for this challenge is to get the provided application up and running for consumption over the public internet. That being said, there are some opportunities in this code challenge to demonstrate your skill sets that are above and beyond the core requirement.
+## Steps ## 
+1) Clone the repo to your system with the command below:
+	git clone https://github.com/RedWings-RedBull/devops-code-challenge.git
 
-A few examples of extras for this coding challenge:
-1. Dockerizing the application
-2. Scripts to set up the infrastructure
-3. Providing a pipeline for the application deployment
-4. Running the application in a serverless environment
+2) Open your terminal and navigate so that the "deployment template" folder is your current working directory.
 
-This is not an exhaustive list of extra features that could be added to this code challenge. At the end of the day, this section is for you to demonstrate any skills you want to show that’s not captured in the core requirement.
+3) Enter the command below, except replaced SUBNETIDGOESHERE with the subnet ID you want to deploy to:
+
+	aws cloudformation create-stack --stack-name interview-challenge-deployment --template-body file://./CloudFormationTemplate.yaml --capabilities CAPABILITY_NAMED_IAM --parameters 'ParameterKey=SubnetID,ParameterValue=SUBNETIDGOESHERE'
+
+	Example:
+	aws cloudformation create-stack --stack-name interview-challenge-deployment --template-body file://./CloudFormationTemplate3.yaml --capabilities CAPABILITY_NAMED_IAM --parameters 'ParameterKey=SubnetID,ParameterValue=subnet-01cd23680cc9f6962'
+
+	Successful output looks as follows:
+	{"StackId": "arn:aws:cloudformation:us-east-2:86423434432:stack/interview-challenge-deployment/7759970-e052-11ec-be18-026d64e7ea2"
+}
+
+4) Go to the AWS CloudFormation console and view the Stacks. Monitor the status of the interview-challenge-deployment stack until it says "CREATE_COMPLETE". 
+
+5) Once the stack is complete, navigate to the AWS Elastic Container Service console and click on the interview-challenge-ecs-cluster cluster. Click on the Tasks tab, then click on the only available task, and note the Public IP on the next page.
+
+6) Navigate to http://PUBLICIP:3000, and as long as you have the aforementioned Google Chrome workaround in place, you will see the results of the backend request.
+
