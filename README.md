@@ -26,7 +26,7 @@ Navigate to chrome://flags/#block-insecure-private-network-requests and change t
 ### Steps ###
 1) Clone the repo to your system with the command below.
 
-	git clone challenge https://github.com/RedWings-RedBull/devops-code-challenge.git
+	git clone --branch challenge https://github.com/RedWings-RedBull/devops-code-challenge.git
 
 2) Open your terminal and navigate so that the "deployment template" folder is your current working directory.
 
